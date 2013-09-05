@@ -12,4 +12,6 @@ compile: deps/mruby/build/host/lib/libmruby.a
 
 clean:
 	cd deps/mruby && make clean
+	rm c_src/mruby.o
+	rm priv/mruby.so
 	./rebar clean

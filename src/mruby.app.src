@@ -1,0 +1,13 @@
+%%% -*- mode: erlang -*-
+
+{application, mruby,
+ [
+  {description, "erlang-mruby"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []}
+ ]}.
