@@ -4,8 +4,48 @@
 
 #include "erl_nif.h"
 
+static int _mrb_fixnum(mrb_value o) { return (int) mrb_fixnum(o); }
+static float _mrb_float(mrb_value o) { return (float) mrb_float(o); }
+
 static ERL_NIF_TERM eval(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
-  return enif_make_badarg(env);
+  ErlNifBinary script_binary;
+
+  if (!enif_inspect_binary(env, argv[0], &script_binary)){
+    return enif_make_badarg(env);
+  }
+
+  mrb_state *mrb;
+  mrbc_context *cxt;
+
+  mrb = mrb_open();
+
+  if (mrb == NULL) {
+    return enif_make_atom(env, "error");
+  }
+
+  cxt = mrbc_context_new(mrb);
+
+  mrb_value result = mrb_load_string_cxt(mrb, (const char *)script_binary.data, cxt);
+
+  mrbc_context_free(mrb, cxt);
+  mrb_close(mrb);
+
+  enif_release_binary(&script_binary);
+
+  switch(result.tt) {
+    case MRB_TT_TRUE:
+      return enif_make_atom(env, "true");
+    case MRB_TT_FALSE:
+      return enif_make_atom(env, "false");
+    case MRB_TT_FIXNUM:
+      return enif_make_int(env, _mrb_fixnum(result));
+    case MRB_TT_FLOAT:
+      return enif_make_double(env, _mrb_float(result));
+    default :
+      return enif_make_string(env, "undefined return type", ERL_NIF_LATIN1);
+  }
+
+  return enif_make_atom(env, "ok");
 }
 
 static ErlNifFunc nif_funcs[] =
