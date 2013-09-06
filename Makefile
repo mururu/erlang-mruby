@@ -4,7 +4,7 @@ deps/mruby/.git:
 	git submodule init
 	git submodule update
 
-deps/mruby/build/host/lib/libmruby.a:
+deps/mruby/build/host/lib/libmruby.a: deps/mruby/.git
 	cd deps/mruby && make
 
 compile: deps/mruby/build/host/lib/libmruby.a
