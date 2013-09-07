@@ -3,6 +3,7 @@
 #include <mruby.h>
 #include <mruby/proc.h>
 #include <mruby/compile.h>
+#include <mruby/string.h>
 
 #include "erl_nif.h"
 
@@ -13,6 +14,15 @@ static const char *_mrb_symbol(mrb_state* mrb, mrb_value o) {
   size_t len;
 
   return mrb_sym2name_len(mrb, id, &len);
+}
+static const char *_mrb_string(mrb_state* mrb, mrb_value o) { return mrb_string_value_ptr(mrb, o); }
+
+static ERL_NIF_TERM make_binary(ErlNifEnv* env, const char* bin) {
+  ErlNifBinary new_bin;
+  size_t len = strlen(bin);
+  enif_alloc_binary(len, &new_bin);
+  memcpy(new_bin.data, bin, len);
+  return enif_make_binary(env, &new_bin);
 }
 
 static ERL_NIF_TERM mruby2erl(ErlNifEnv* env, mrb_state* mrb, mrb_value value) {
@@ -27,6 +37,8 @@ static ERL_NIF_TERM mruby2erl(ErlNifEnv* env, mrb_state* mrb, mrb_value value) {
       return enif_make_int(env, _mrb_fixnum(value));
     case MRB_TT_FLOAT:
       return enif_make_double(env, _mrb_float(value));
+    case MRB_TT_STRING:
+      return make_binary(env, _mrb_string(mrb, value));
     default :
       return enif_make_string(env, "undefined return type", ERL_NIF_LATIN1);
   }
