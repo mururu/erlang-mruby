@@ -8,13 +8,21 @@
 
 static int _mrb_fixnum(mrb_value o) { return (int) mrb_fixnum(o); }
 static float _mrb_float(mrb_value o) { return (float) mrb_float(o); }
+static const char *_mrb_symbol(mrb_state* mrb, mrb_value o) {
+  mrb_sym id = mrb_symbol(o);
+  size_t len;
 
-static ERL_NIF_TERM mruby2erl(ErlNifEnv* env, mrb_value value) {
+  return mrb_sym2name_len(mrb, id, &len);
+}
+
+static ERL_NIF_TERM mruby2erl(ErlNifEnv* env, mrb_state* mrb, mrb_value value) {
   switch(value.tt) {
     case MRB_TT_TRUE:
       return enif_make_atom(env, "true");
     case MRB_TT_FALSE:
       return enif_make_atom(env, "false");
+    case MRB_TT_SYMBOL:
+      return enif_make_atom(env, _mrb_symbol(mrb, value));
     case MRB_TT_FIXNUM:
       return enif_make_int(env, _mrb_fixnum(value));
     case MRB_TT_FLOAT:
@@ -50,12 +58,13 @@ static ERL_NIF_TERM eval(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
 
   free(script);
 
+  ERL_NIF_TERM erl_result = mruby2erl(env, mrb, result);
+
   mrbc_context_free(mrb, cxt);
   mrb_close(mrb);
 
   enif_release_binary(&script_binary);
 
-  ERL_NIF_TERM erl_result = mruby2erl(env, result);
 
   return erl_result;
 }
