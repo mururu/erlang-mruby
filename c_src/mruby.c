@@ -25,6 +25,14 @@ static ERL_NIF_TERM make_binary(ErlNifEnv* env, const char* bin) {
   return enif_make_binary(env, &new_bin);
 }
 
+static ERL_NIF_TERM make_array() {
+  return enif_make_atom(env, "todo_array");
+}
+
+static ERL_NIF_TERM make_hash() {
+ return enif_make_atom(env, "todo_hash");
+}
+
 static ERL_NIF_TERM mruby2erl(ErlNifEnv* env, mrb_state* mrb, mrb_value value) {
   if (mrb_nil_p(value)) {
     return enif_make_atom(env, "nil");
@@ -42,6 +50,10 @@ static ERL_NIF_TERM mruby2erl(ErlNifEnv* env, mrb_state* mrb, mrb_value value) {
         return enif_make_double(env, _mrb_float(value));
       case MRB_TT_STRING:
         return make_binary(env, _mrb_string(mrb, value));
+      case MRB_TT_ARRAY:
+        return make_array();
+      case MRB_TT_HASH:
+        return make_hash();
       default :
         return enif_make_string(env, "undefined return type", ERL_NIF_LATIN1);
     }
