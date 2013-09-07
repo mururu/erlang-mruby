@@ -26,21 +26,25 @@ static ERL_NIF_TERM make_binary(ErlNifEnv* env, const char* bin) {
 }
 
 static ERL_NIF_TERM mruby2erl(ErlNifEnv* env, mrb_state* mrb, mrb_value value) {
-  switch(value.tt) {
-    case MRB_TT_TRUE:
-      return enif_make_atom(env, "true");
-    case MRB_TT_FALSE:
-      return enif_make_atom(env, "false");
-    case MRB_TT_SYMBOL:
-      return enif_make_atom(env, _mrb_symbol(mrb, value));
-    case MRB_TT_FIXNUM:
-      return enif_make_int(env, _mrb_fixnum(value));
-    case MRB_TT_FLOAT:
-      return enif_make_double(env, _mrb_float(value));
-    case MRB_TT_STRING:
-      return make_binary(env, _mrb_string(mrb, value));
-    default :
-      return enif_make_string(env, "undefined return type", ERL_NIF_LATIN1);
+  if (mrb_nil_p(value)) {
+    return enif_make_atom(env, "nil");
+  } else {
+    switch(value.tt) {
+      case MRB_TT_TRUE:
+        return enif_make_atom(env, "true");
+      case MRB_TT_FALSE:
+        return enif_make_atom(env, "false");
+      case MRB_TT_SYMBOL:
+        return enif_make_atom(env, _mrb_symbol(mrb, value));
+      case MRB_TT_FIXNUM:
+        return enif_make_int(env, _mrb_fixnum(value));
+      case MRB_TT_FLOAT:
+        return enif_make_double(env, _mrb_float(value));
+      case MRB_TT_STRING:
+        return make_binary(env, _mrb_string(mrb, value));
+      default :
+        return enif_make_string(env, "undefined return type", ERL_NIF_LATIN1);
+    }
   }
 }
 
