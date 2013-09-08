@@ -1,8 +1,10 @@
 -module(mruby).
--export([eval/1]).
+-export([eval/1, eval/2]).
 -on_load(init/0).
 
 eval(_) ->
+    erlang:nif_error({nif_not_loaded, {module, ?MODULE}, {line, ?LINE}}).
+eval(_,_) ->
     erlang:nif_error({nif_not_loaded, {module, ?MODULE}, {line, ?LINE}}).
 
 init() ->
