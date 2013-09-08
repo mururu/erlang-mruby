@@ -183,7 +183,8 @@ static ERL_NIF_TERM eval1(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
 
   cxt = mrbc_context_new(mrb);
 
-  char *script = malloc(script_binary.size);
+  char *script = malloc(script_binary.size+1);
+  script[script_binary.size] = '\0';
 
   strncpy(script, (const char *)script_binary.data, (int)script_binary.size);
 
@@ -241,9 +242,10 @@ static ERL_NIF_TERM eval2(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
 
   cxt = mrbc_context_new(mrb);
 
-  char *script = malloc(script_binary.size);
+  char *script = malloc(script_binary.size+1);
 
   strncpy(script, (const char *)script_binary.data, (int)script_binary.size);
+  script[script_binary.size] = '\0';
 
   mrb_value result = mrb_load_string_cxt(mrb, (const char *)script, cxt);
 
