@@ -181,24 +181,18 @@ static ERL_NIF_TERM eval1(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
     return enif_make_atom(env, "error");
   }
 
-  cxt = mrbc_context_new(mrb);
-
   char *script = malloc(script_binary.size+1);
   script[script_binary.size] = '\0';
-
   strncpy(script, (const char *)script_binary.data, (int)script_binary.size);
 
+  cxt = mrbc_context_new(mrb);
   mrb_value result = mrb_load_string_cxt(mrb, (const char *)script, cxt);
-
-  free(script);
-
   ERL_NIF_TERM erl_result = mruby2erl(env, mrb, result);
 
+  free(script);
   mrbc_context_free(mrb, cxt);
   mrb_close(mrb);
-
   enif_release_binary(&script_binary);
-
 
   return erl_result;
 }
@@ -215,7 +209,6 @@ static ERL_NIF_TERM eval2(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
     return enif_make_badarg(env);
   }
 
-
   mrb_state *mrb;
   mrbc_context *cxt;
 
@@ -225,10 +218,8 @@ static ERL_NIF_TERM eval2(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
     return enif_make_atom(env, "error");
   }
 
-
   unsigned int mrb_argv_len;
   enif_get_list_length(env, argv[1], &mrb_argv_len);
-
   mrb_value mrb_argv = mrb_ary_new(mrb);
   ERL_NIF_TERM cur;
   for(cur = argv[1]; !enif_is_empty_list(env, cur); ) {
@@ -237,27 +228,20 @@ static ERL_NIF_TERM eval2(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
     mrb_ary_push(mrb, mrb_argv, erl2mruby(env, mrb, head));
     cur = tail;
   }
-
   mrb_define_global_const(mrb, "ARGV", mrb_argv);
 
-  cxt = mrbc_context_new(mrb);
-
   char *script = malloc(script_binary.size+1);
-
   strncpy(script, (const char *)script_binary.data, (int)script_binary.size);
   script[script_binary.size] = '\0';
 
+  cxt = mrbc_context_new(mrb);
   mrb_value result = mrb_load_string_cxt(mrb, (const char *)script, cxt);
-
-  free(script);
-
   ERL_NIF_TERM erl_result = mruby2erl(env, mrb, result);
 
+  free(script);
   mrbc_context_free(mrb, cxt);
   mrb_close(mrb);
-
   enif_release_binary(&script_binary);
-
 
   return erl_result;
 }
