@@ -185,12 +185,13 @@ static ERL_NIF_TERM eval1(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[]) {
   script[script_binary.size] = '\0';
   strncpy(script, (const char *)script_binary.data, (int)script_binary.size);
 
+  ERL_NIF_TERM erl_result;
   cxt = mrbc_context_new(mrb);
   struct mrb_parser_state* st = mrb_parse_string(mrb, (const char *)script, cxt);
   int n = mrb_generate_code(mrb, st);
   mrb_pool_close(st->pool);
   mrb_value result = mrb_run(mrb, mrb_proc_new(mrb, mrb->irep[n]), mrb_nil_value());
-  ERL_NIF_TERM erl_result = mruby2erl(env, mrb, result);
+  erl_result = mruby2erl(env, mrb, result);
 
   free(script);
   mrbc_context_free(mrb, cxt);
