@@ -2,6 +2,12 @@
 
 WIP
 
+## BUILD
+
+```
+make
+```
+
 ## Examples
 
 ```erlang
